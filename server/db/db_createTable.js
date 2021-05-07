@@ -1,51 +1,35 @@
 // Load the AWS SDK for Node.js
 var AWS = require('aws-sdk');
 // Set the region 
-AWS.config.update({region: 'us-east-2'});
+AWS.config.update({
+  region: 'us-west-1',
+  endpoint: "http://localhost:3000"
+});
 
 // Create the DynamoDB service object
-var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
-var params = {
-  AttributeDefinitions: [
-    {
-      AttributeName: '_id',
-      AttributeType: 'S'
-    },
-    {
-      AttributeName: 'thoughtText',
-      AttributeType: 'S'
-    },
-    {
-      AttributeName: 'createdAt',
-      AttributeType: 'S'
-    }
+const params = {
+  TableName : "Thoughts",
+  KeySchema: [       
+    { AttributeName: "username", KeyType: "HASH"},  // Partition key
+    { AttributeName: "createdAt", KeyType: "RANGE" }  // Sort key
   ],
-  KeySchema: [
-    {
-      AttributeName: '_id',
-      KeyType: 'HASH'
-    },
-    {
-      AttributeName: 'thoughtText',
-      KeyType: 'RANGE'
-    }
+  AttributeDefinitions: [       
+    { AttributeName: "username", AttributeType: "S" }, //S is for string
+    { AttributeName: "createdAt", AttributeType: "N" } // N is for number
   ],
-  ProvisionedThroughput: {
-    ReadCapacityUnits: 1,
-    WriteCapacityUnits: 1
-  },
-  TableName: 'Thoughts',
-  StreamSpecification: {
-    StreamEnabled: false
+  ProvisionedThroughput: {       
+    ReadCapacityUnits: 10, 
+    WriteCapacityUnits: 10
   }
 };
 
 // Call DynamoDB to create the table
-ddb.createTable(params, function(err, data) {
+dynamodb.createTable(params, (err, data) => {
   if (err) {
-    console.log("Error", err);
+      console.error("Unable to create table. Error JSON:", JSON.stringify(err, null, 2));
   } else {
-    console.log("Table Created", data);
+      console.log("Created table. Table description JSON:", JSON.stringify(data, null, 2));
   }
 });

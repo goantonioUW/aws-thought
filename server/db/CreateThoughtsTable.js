@@ -1,19 +1,20 @@
 const AWS = require("aws-sdk");
+const fs = require('fs');
 
 // config points to local instance,
 // updates local environmental variables
 AWS.config.update({
-  region: "us-east-2",
-  endpoint: "http://localhost:8000"
-});
+    region: "us-west-1",
+    endpoint: "http://localhost:8000"
+  });
 
-const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+    const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
-const params = {
+    const params = {
     TableName : "Thoughts",
     KeySchema: [       
-        { AttributeName: "username", KeyType: "HASH"},  //Partition key
-        { AttributeName: "createdAt", KeyType: "RANGE" }  //Sort key
+        { AttributeName: "username", KeyType: "HASH"},  // Partition key
+        { AttributeName: "createdAt", KeyType: "RANGE" }  // Sort key
     ],
     AttributeDefinitions: [       
         { AttributeName: "username", AttributeType: "S" },
@@ -24,6 +25,7 @@ const params = {
         WriteCapacityUnits: 10
     }
 };
+
 // create table method using schema params
 dynamodb.createTable(params, (err, data) => {
     if (err) {
